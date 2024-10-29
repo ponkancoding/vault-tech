@@ -20,8 +20,19 @@ const users: Array<{
 }> = [];
 
 router.get('/', (req: Request, res: Response): void => {
+  const { email } = req.query;
+
+  if (email) {
+    const filteredUsers = users.filter((user) =>
+      user.personalDetails.email === email
+    );
+
+    res.status(200).json(filteredUsers);
+  }
+
   res.status(200).json({ users });
 });
+
 
 router.post('/create', async (req: Request, res: Response): Promise<void> => {
   const { personalDetails, address } = req.body;
