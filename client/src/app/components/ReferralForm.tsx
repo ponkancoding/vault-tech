@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import useSWR, { mutate } from 'swr';
 import { TrashIcon, PencilIcon } from '@heroicons/react/24/solid';
 import axios from 'axios';
@@ -25,6 +26,23 @@ interface Referral {
   };
 }
 
+const validationSchema = Yup.object().shape({
+  personalDetails: Yup.object().shape({
+    firstName: Yup.string().required('First name is required'),
+    lastName: Yup.string().required('Last name is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    phone: Yup.string().required('Phone number is required'),
+  }),
+  address: Yup.object().shape({
+    homeName: Yup.string().required('Home name is required'),
+    street: Yup.string().required('Street is required'),
+    suburb: Yup.string().required('Suburb is required'),
+    state: Yup.string().required('State is required'),
+    postcode: Yup.string().required('Postcode is required'),
+    country: Yup.string().required('Country is required'),
+  }),
+});
+
 const PersonalDetails = ({ values, action }) => (
   <div className='grid grid-cols-1 lg:grid-cols-2 lg:gap-8'>
     <div className='flex flex-col mb-4 lg:mb-0'>
@@ -39,6 +57,7 @@ const PersonalDetails = ({ values, action }) => (
         className='p-2 text-lg border border-gray-300 rounded-sm'
         type='text'
       />
+      <ErrorMessage name="personalDetails.firstName" component="div" className="text-red-600 text-sm" />
     </div>
 
     <div className='flex flex-col mb-4 lg:mb-0'>
@@ -53,6 +72,7 @@ const PersonalDetails = ({ values, action }) => (
         className='p-2 text-lg border border-gray-300 rounded-sm'
         type='text'
       />
+      <ErrorMessage name="personalDetails.lastName" component="div" className="text-red-600 text-sm" />
     </div>
 
     <div className='flex flex-col mb-4 lg:mb-0'>
@@ -68,6 +88,7 @@ const PersonalDetails = ({ values, action }) => (
         type='email'
         disabled={action === 'update'}
       />
+      <ErrorMessage name="personalDetails.email" component="div" className="text-red-600 text-sm" />
     </div>
 
     <div className='flex flex-col mb-4 lg:mb-0'>
@@ -82,6 +103,7 @@ const PersonalDetails = ({ values, action }) => (
         className='p-2 text-lg border border-gray-300 rounded-sm'
         type='tel'
       />
+      <ErrorMessage name="personalDetails.phone" component="div" className="text-red-600 text-sm" />
     </div>
   </div>
 );
@@ -257,6 +279,7 @@ const ReferralForm = () => {
               country: '',
             },
       }}
+      validationSchema={validationSchema}
       enableReinitialize
       onSubmit={(values, { resetForm }) => {
         if (action === 'update') {
